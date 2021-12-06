@@ -27,7 +27,51 @@
 
 </style>
 
-<!-- Add achieved -->
+<!-- Create habit -->
+<div class="modal fade" id="Modal-CreateHabit"
+    tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">
+                    Create new habit
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" >
+                    {{ create_habit_form.hidden_tag() }}
+                    <h3>Create</h3>
+                    <div class="row flex-fill">
+                        {{ create_habit_form.name.label() }}
+                        {{ create_habit_form.name(class="form-control", placeholder="Habit name") }}
+                        {{ create_habit_form.units.label() }}
+                        {{ create_habit_form.units(class="form-control", placeholder="Units") }}
+                        {{ create_habit_form.goal.label() }}
+                        {{ create_habit_form.goal(class="form-control", placeholder="Goal") }}
+                        <!-- Select days of the week -->
+                        <div class="weekDays-selector">
+                            {% for day in ["M", "T", "W", "X", "F", "S", "D"] %}
+                                <input  type="checkbox" id="weekday-{{ day }}-habit-new" name="weekday-{{ day }}-habit-new" class="weekday">
+                                <label for="weekday-{{ day }}-habit-new">{{day}}</label>
+                            {% endfor %}
+                        </div>                        
+                    </div>
+                    <!-- Create habit -->
+                    <input type="hidden" id="action" name="action" value="create-habit">
+                    {{ create_habit_form.submit(class="btn btn-outline-success btn-block") }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-center" data-dismiss="modal">
+                    x
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modify achieved -->
 <div class="modal fade" id="Modal-ModifyAchieved-{{ habit.id }}"
     tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -43,7 +87,7 @@
             </div>
             <div class="modal-body">
                 <form method="POST" >
-                    {{ modify_form.hidden_tag() }}
+                    {{ modify_achieved_form.hidden_tag() }}
                     <h4 class="text-center">
                         Modify achieved
                     </h4>

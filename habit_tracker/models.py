@@ -1,4 +1,3 @@
-from sqlalchemy.orm import backref
 from sqlalchemy.sql.functions import func
 from habit_tracker import db
 from sqlalchemy import DateTime
