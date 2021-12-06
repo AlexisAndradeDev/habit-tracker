@@ -42,7 +42,8 @@ def habits_page():
             achieved_today = int(achieved_today) if achieved_today else 0
 
         elif action == "modify":
-            goal = int(request.form.get("goal"))
+            goal = request.form.get("goal")
+            goal = int(goal) if goal else 0
             units = request.form.get("units")
 
             days = {"M": None, "T": None, "W": None, "X": None, "F": None, 
