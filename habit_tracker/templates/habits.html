@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<title>Habit Tracker - Habits</title>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-hover table-dark" style="margin-top: 0.5rem;">
+        <thead>
+            <tr>
+                <!-- Columns -->
+                <th scope="col">Name</th>
+                <th scope="col">Goal</th>
+                <th scope="col">Units</th>
+                <th scope="col">Achieved Today</th>
+                <th scope="col">Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows inside the table -->
+            {% for habit in habits %}
+                {% include 'includes/habits_modals.html' %}
+                <tr>
+                    <td>{{ habit.name }}</td>
+                    <td>{{ habit.goal }}</td>
+                    <td>{{ habit.units }}</td>
+                    {% if local_datetime_is_today(habit.history[-1].local_timezone_date) %} <!-- last record of the habit -->
+                        <td>{{ habit.history[-1].achieved }}</td>
+                    {% else %}
+                        <td>0</td>
+                    {% endif %}
+                    <td>
+                        <button class="btn btn-outline btn-success" style="margin: 0.2rem;"
+                            data-toggle="modal" data-target="#Modal-AddAchieved-{{ habit.id }}">
+                            Add to achieved today
+                    </td>
+                    <td>
+                        <button class="btn btn-outline btn-success" style="margin: 0.2rem;"
+                                data-toggle="modal" data-target="#Modal-Modify-{{ habit.id }}">
+                            Modify
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
