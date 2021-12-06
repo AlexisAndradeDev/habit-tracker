@@ -30,10 +30,12 @@ def habits_page():
         # get habit's today's 'achieved' value and today's record
         if last_record_date_is_today:
             habit_record = last_record
+            achieved_today = habit_record.achieved
         else:
             habit_record = HabitHistory(name=habit.name, goal=habit.goal, 
                 units=habit.units, achieved=0, habit_obj_id=habit.id
             )
+            achieved_today = 0
 
         if action == "modify-achieved":
             achieved_today = request.form.get("modify-achieved")
