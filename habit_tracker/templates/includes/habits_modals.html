@@ -28,7 +28,7 @@
 </style>
 
 <!-- Add achieved -->
-<div class="modal fade" id="Modal-AddAchieved-{{ habit.id }}"
+<div class="modal fade" id="Modal-ModifyAchieved-{{ habit.id }}"
     tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -45,19 +45,19 @@
                 <form method="POST" >
                     {{ modify_form.hidden_tag() }}
                     <h4 class="text-center">
-                        Add achieved
+                        Modify achieved
                     </h4>
                     <div class="row flex-fill">
                         <div class="col-md-12" style="padding: 1rem;">
-                            <label>Add to achieved:</label>
-                            <input type="text" id="add-to-achieved" name="add-to-achieved" value="0" />
+                            <label>Achieved:</label>
+                            <input type="text" id="modify-achieved" name="modify-achieved" />
                             <label>{{ habit.units }}</label>
                         </div>
                     </div>
                     <!-- Add to achieved -->
                     <input type="hidden" id="modified_habit" name="modified_habit" value="{{ habit.name }}" />
-                    <input type="hidden" id="action" name="action" value="add">
-                    {{ add_to_achieved_form.submit(class="btn btn-outline-success btn-block") }}
+                    <input type="hidden" id="action" name="action" value="modify-achieved">
+                    {{ modify_achieved_form.submit(class="btn btn-outline-success btn-block") }}
                 </form>
             </div>
             <div class="modal-footer">
