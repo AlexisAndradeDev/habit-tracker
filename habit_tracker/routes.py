@@ -1,7 +1,6 @@
 from datetime import date
 from flask import Blueprint, request, redirect, url_for
 from flask.templating import render_template
-from sqlalchemy.sql.functions import func, localtime
 from habit_tracker.forms import ModifyAchievedForm, ModifyForm
 from habit_tracker.models import Habit, HabitHistory
 from habit_tracker import db
@@ -26,9 +25,10 @@ def habits_page():
         habit = Habit.query.filter_by(name=habit_name).first()
 
         last_record = habit.history[-1]
+        last_record_date_is_today = local_datetime_is_today(last_record.local_timezone_date)
 
         # get habit's today's 'achieved' value and today's record
-        if local_datetime_is_today(last_record.local_timezone_date):
+        if last_record_date_is_today:
             habit_record = last_record
         else:
             habit_record = HabitHistory(name=habit.name, goal=habit.goal, 
@@ -66,7 +66,7 @@ def habits_page():
         habit_record.units = habit.units
         habit_record.achieved = achieved_today
 
-        if not local_datetime_is_today(habit_record.local_timezone_date):
+        if not last_record_date_is_today:
             # add today's record to database
             db.session.add(habit_record)
 
