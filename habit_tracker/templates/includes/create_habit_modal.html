@@ -1,0 +1,44 @@
+<link href="{{ url_for('static', filename="modals_style.css") }}" rel="stylesheet">
+
+<!-- Create habit -->
+<div class="modal fade" id="Modal-CreateHabit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="padding: 1rem;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="ModalLabel">
+                    Create new habit
+                </h3>
+            </div>
+            <div class="modal-body">
+                <form method="POST" >
+                    {{ create_habit_form.hidden_tag() }}
+                    <div class="row flex-fill">
+                        <div class="col-12">
+                            {{ create_habit_form.name.label(style="margin-top: 1rem;") }}
+                            {{ create_habit_form.name(class="form-control", placeholder="Habit name") }}
+                            {{ create_habit_form.units.label(style="margin-top: 1rem;") }}
+                            {{ create_habit_form.units(class="form-control", placeholder="Units") }}
+                            {{ create_habit_form.goal.label(style="margin-top: 1rem;") }}
+                            {{ create_habit_form.goal(class="form-control", placeholder="Goal") }}
+                            <p style="margin-top: 1rem;">Select weekdays</p>
+                            <div class="weekDays-selector" style="margin-top: 1rem;">
+                                {% for day in ["M", "T", "W", "X", "F", "S", "D"] %}
+                                    <input  type="checkbox" id="weekday-{{ day }}-habit-new" name="weekday-{{ day }}-habit-new" class="weekday">
+                                    <label for="weekday-{{ day }}-habit-new">{{day}}</label>
+                                {% endfor %}
+                            </div>                        
+                        </div>
+                    </div>
+                    <!-- Create habit -->
+                    <input type="hidden" id="action" name="action" value="create-habit">
+                    {{ create_habit_form.submit(class="btn btn-outline-success btn-block", style="margin-top: 1rem;") }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-center" data-dismiss="modal">
+                    x
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

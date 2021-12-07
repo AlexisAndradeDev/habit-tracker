@@ -2,16 +2,20 @@
 
 {% block extra_head %}
 <title>Habit Tracker - Habits</title>
+
 {% endblock %}
 
 {% block content %}
-    <div class="row flex-fill">
-        <div class="col-4" style="margin: 1rem;">
-            <div class="card shadow-sm">
+    <div class="container">
+        <div class="row flex-fill" style="margin: 1rem 0 1rem 0;">
+            <div class="col-4">
+                {% include "includes/create_habit_modal.html" %}
+                <div class="card shadow-sm" class="margin: 0px; padding: 0px;">
                     <button class="btn btn-outline btn-success" data-toggle="modal"
                             data-target="#Modal-CreateHabit">
                         Create new habit
                     </button>
+                </div>
             </div>
         </div>
     </div>
@@ -30,7 +34,7 @@
         <tbody>
             <!-- Rows inside the table -->
             {% for habit in habits %}
-                {% include 'includes/habits_modals.html' %}
+                {% include 'includes/habits_options_modals.html' %}
                 <tr>
                     <td>{{ habit.name }}</td>
                     <td>{{ habit.goal }}</td>
@@ -47,9 +51,15 @@
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-outline btn-success" style="margin: 0.2rem;"
+                        <button class="btn btn-outline btn-primary" style="margin: 0.2rem;"
                                 data-toggle="modal" data-target="#Modal-Modify-{{ habit.id }}">
                             Modify
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-outline btn-danger" style="margin: 0.2rem;"
+                                data-toggle="modal" data-target="#Modal-DeleteHabit-{{ habit.id }}">
+                            Delete
                         </button>
                     </td>
                 </tr>
