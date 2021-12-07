@@ -13,3 +13,6 @@ class CreateHabitForm(FlaskForm):
     units = StringField(label="Units (minutes, calories):", validators=[Length(max=15), DataRequired()])
     goal = IntegerField(label="Goal (number): ", validators=[DataRequired()])
     submit = SubmitField(label="Create")
+
+class DeleteHabitForm(FlaskForm):
+    submit = SubmitField(label="Delete")

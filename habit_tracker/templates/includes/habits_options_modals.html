@@ -1,0 +1,133 @@
+<link href="{{ url_for('static', filename="modals_style.css") }}" rel="stylesheet">
+
+<!-- Modify achieved -->
+<div class="modal fade" id="Modal-ModifyAchieved-{{ habit.id }}"
+    tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">
+                    {{ habit.name }}
+                </h5>
+                <button type="button" class="close"
+                    data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" >
+                    {{ modify_achieved_form.hidden_tag() }}
+                    <h4 class="text-center">
+                        Modify achieved
+                    </h4>
+                    <div class="row flex-fill">
+                        <div class="col-md-12" style="padding: 1rem;">
+                            <label>Achieved:</label>
+                            <input type="text" id="modify-achieved" name="modify-achieved" />
+                            <label>{{ habit.units }}</label>
+                        </div>
+                    </div>
+                    <!-- Add to achieved -->
+                    <input type="hidden" id="modified_habit" name="modified_habit" value="{{ habit.name }}" />
+                    <input type="hidden" id="action" name="action" value="modify-achieved">
+                    {{ modify_achieved_form.submit(class="btn btn-outline-success btn-block") }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-center" data-dismiss="modal">
+                    x
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modify habit -->
+<div class="modal fade" id="Modal-Modify-{{ habit.id }}"
+    tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">
+                    {{ habit.name }}
+                </h5>
+                <button type="button" class="close"
+                    data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" >
+                    {{ modify_form.hidden_tag() }}
+                    <h4 class="text-center">
+                        Modify habit
+                    </h4>
+                    <!-- Change name, goal, etc. -->
+                    <div class="row flex-fill">
+                        <div class="col-md-12" style="padding: 1rem;">
+                            <label>Goal</label>
+                            <input type="text" id="goal" name="goal" value="{{ habit.goal }}" />
+                        </div>
+                        <div class="col-md-12" style="padding: 1rem;">
+                            <label>Units</label>
+                            <input type="text" id="units" name="units" value="{{ habit.units }}">
+                        </div>
+                    </div>
+                    <div class="row flex-fill">
+                        <div class="col-md-12" style="padding: 1rem;">
+                            <!-- Select days of the week -->
+                            <div class="weekDays-selector">
+                                {% for day in ["M", "T", "W", "X", "F", "S", "D"] %}
+                                    {% if day in habit.days_of_the_week %}
+                                        <input  checked type="checkbox" id="weekday-{{ day }}-habit-{{ habit.name }}" name="weekday-{{ day }}-habit-{{ habit.name }}" class="weekday">
+                                    {% else %}
+                                        <input  type="checkbox" id="weekday-{{ day }}-habit-{{ habit.name }}" name="weekday-{{ day }}-habit-{{ habit.name }}" class="weekday">
+                                    {% endif %}
+                                    <label for="weekday-{{ day }}-habit-{{ habit.name }}">{{day}}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Save changes of this habit -->
+                    <input type="hidden" id="modified_habit" name="modified_habit" value="{{ habit.name }}" />
+                    <input type="hidden" id="action" name="action" value="modify">
+                    {{ modify_form.submit(class="btn btn-outline-success btn-block") }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-center" data-dismiss="modal">
+                    x
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete habit -->
+<div class="modal fade" id="Modal-DeleteHabit-{{ habit.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{ habit.name }}
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {{ delete_habit_form.hidden_tag() }}
+                    <h4>
+                        Delete habit
+                    </h4>
+                    <input type="hidden" id="deleted_habit" name="deleted_habit" value="{{ habit.name }}" />
+                    <input type="hidden" id="action" name="action" value="delete-habit">
+                    {{ delete_habit_form.submit(class="btn btn-outline-danger btn-block") }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-center" data-dismiss="modal">
+                    x
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

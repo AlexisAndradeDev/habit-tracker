@@ -1,7 +1,7 @@
 from datetime import date
 from flask import Blueprint, request, redirect, url_for
 from flask.templating import render_template
-from habit_tracker.forms import CreateHabitForm, ModifyAchievedForm, ModifyForm
+from habit_tracker.forms import CreateHabitForm, ModifyAchievedForm, ModifyForm, DeleteHabitForm
 from habit_tracker.models import Habit, HabitHistory
 from habit_tracker import db
 
@@ -49,7 +49,8 @@ def get_weekdays_from_weekdays_selector(checkboxes_template_name):
         "S": None, "D": None,
     }
     for day in days:
-        checkbox_name = checkboxes_template_name.replace("$& day &$", day)
+        checkbox_name = checkboxes_template_name.replace("$&day&$", day)
+        print(checkbox_name)
         days[day] = request.form.get(checkbox_name)
 
     days_selected = "" #MTWXFSD
@@ -64,6 +65,7 @@ def habits_page():
     create_habit_form = CreateHabitForm()
     modify_form = ModifyForm()
     modify_achieved_form = ModifyAchievedForm()
+    delete_habit_form = DeleteHabitForm()
 
     if (request.method == "POST" and 
             request.form.get("action") in ["modify-achieved", "modify"]):
@@ -130,11 +132,20 @@ def habits_page():
 
         return redirect(url_for("main.habits_page"))
 
+    elif (request.method == "POST" and
+            request.form.get("action") == "delete-habit"):
+        habit_name = request.form.get("deleted_habit")
+        habit = Habit.query.filter_by(name=habit_name).first()
+        db.session.delete(habit)
+        db.session.commit()
+        return redirect(url_for("main.habits_page"))
+
     if request.method == "GET":
         habits = Habit.query.all()
         return render_template("habits.html", habits=habits, 
             create_habit_form=create_habit_form, modify_form=modify_form, 
-            modify_achieved_form=modify_achieved_form, date=date, 
+            modify_achieved_form=modify_achieved_form, 
+            delete_habit_form=delete_habit_form, date=date, 
             local_datetime_is_today=local_datetime_is_today,
         )
 
