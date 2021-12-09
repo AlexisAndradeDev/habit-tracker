@@ -36,6 +36,22 @@ class HabitHistory(db.Model):
 
     @property
     def local_timezone_date(self):
+        """
+        Returns a string that contains the year, month, day and hour the 
+        habit record was created (in the timezone of the user).
+        """
         local_datetime = self.date.replace(tzinfo=tz.tzutc())
         local_datetime = local_datetime.astimezone(tz.tzlocal())
         return local_datetime
+    
+    @property
+    def local_timezone_day(self):
+        """
+        Returns a string that contains the month, day and year the habit 
+        record was created (in the timezone of the user).
+        """
+        return f"{self.local_timezone_date.month}-{self.local_timezone_date.day}-{self.local_timezone_date.year}"
+    
+    @property
+    def percentage_achieved(self):
+        return int((self.achieved / self.goal) * 100)

@@ -149,6 +149,8 @@ def habits_page():
             local_datetime_is_today=local_datetime_is_today,
         )
 
-@main.route("/statistics")
-def statistics_page():
-    return render_template("statistics.html")
+@main.route("/history")
+def history_page():
+    if request.method == "GET":
+        habits_history = HabitHistory.query.all()
+        return render_template("history.html", habits_history=habits_history)
