@@ -4,6 +4,7 @@ from flask.templating import render_template
 from habit_tracker.forms import CreateHabitForm, ModifyAchievedForm, ModifyForm, DeleteHabitForm
 from habit_tracker.models import Habit, HabitHistory
 from habit_tracker import db
+from sqlalchemy import func
 
 main = Blueprint("main", __name__)
 
@@ -74,7 +75,9 @@ def habits_page():
         habit = Habit.query.filter_by(name=habit_name).first()
 
         last_record = habit.history[-1]
-        last_record_date_is_today = local_datetime_is_today(last_record.local_timezone_date)
+        last_record_date_is_today = local_datetime_is_today(
+            last_record.local_timezone_date
+        )
 
         # get habit's today's 'achieved' value and today's record
         if last_record_date_is_today:
@@ -95,7 +98,9 @@ def habits_page():
             goal = int(goal) if goal else 0
             units = request.form.get("units")
 
-            weekdays_selected = get_weekdays_from_weekdays_selector(f"weekday-$&day&$-habit-{habit.name}")
+            weekdays_selected = get_weekdays_from_weekdays_selector(
+                f"weekday-$&day&$-habit-{habit.name}"
+            )
             
             habit.goal = goal
             habit.units = units
@@ -124,7 +129,9 @@ def habits_page():
         units = create_habit_form.units.data
         goal = create_habit_form.goal.data
 
-        weekdays_selected = get_weekdays_from_weekdays_selector(f"weekday-$&day&$-habit-new")
+        weekdays_selected = get_weekdays_from_weekdays_selector(
+            f"weekday-$&day&$-habit-new"
+        )
 
         habit = Habit(name=habit_name, units=units, goal=goal, 
             days_of_the_week=weekdays_selected)
@@ -153,4 +160,17 @@ def habits_page():
 def history_page():
     if request.method == "GET":
         habits_history = HabitHistory.query.all()
-        return render_template("history.html", habits_history=habits_history)
+        achieved_sumations, percentage_achieved_averages = {}, {}
+        for habit_record in habits_history:
+            achieved_sumation = HabitHistory.query.filter_by(
+                name=habit_record.name).with_entities(
+                func.sum(HabitHistory.achieved).label("total")).first().total
+            average_percentage_achieved = \
+                int(habit_record.percentage_achieved / HabitHistory.query.filter_by(
+                name=habit_record.name).count())
+            achieved_sumations[habit_record.name] = achieved_sumation
+            percentage_achieved_averages[habit_record.name] = average_percentage_achieved
+
+        return render_template("history.html", habits_history=habits_history, 
+            achieved_sumations=achieved_sumations, 
+            percentage_achieved_averages=percentage_achieved_averages, zip=zip)
