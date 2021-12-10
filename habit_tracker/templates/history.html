@@ -43,8 +43,21 @@
                 </tbody>
             </table>
         </div>
-        <div class="row flex-fill">
+        <div class="row flex-fill" style="margin-top: 2rem;">
             <!-- Total achieved quantity of each habit -->
+            {% for habit_record, achieved_sumation, average_percentage_achieved in zip(habits_history, achieved_sumations.items(), percentage_achieved_averages.items()) %}
+            <div class="col-6">
+                <div class="card shadow-sm text-center bg-dark">
+                    <div class="card-body">
+                        <div class="card-text">
+                            <p style="color: #f2f2f2; font-weight: bold;">{{ habit_record.name }}</p>
+                            <p style="color: #f2f2f2;">Total achieved: {{ achieved_sumation[1] }} {{ habit_record.units }}</p>
+                            <p style="color: #f2f2f2;">Average percentage achieved: {{ average_percentage_achieved[1] }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
