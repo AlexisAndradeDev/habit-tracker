@@ -1,10 +1,14 @@
 from datetime import date
+import datetime
+import pytz
+from dateutil import tz
 from flask import Blueprint, request, redirect, url_for
 from flask.templating import render_template
-from habit_tracker.forms import CreateHabitForm, ModifyAchievedForm, ModifyForm, DeleteHabitForm
+from habit_tracker.forms import (CreateHabitForm, ModifyAchievedForm, 
+    ModifyForm, DeleteHabitForm, FilterHistoryForm)
 from habit_tracker.models import Habit, HabitHistory
 from habit_tracker import db
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 main = Blueprint("main", __name__)
 
@@ -14,6 +18,22 @@ def local_datetime_is_today(local_datetime):
         local_datetime.month == date.today().month and 
         local_datetime.day == date.today().day
         ) else False
+
+def convert_local_date_into_utc_datetime(local_date):
+    """
+    Converts a local timezone date object into a UTC timezone datetime object.
+
+    Args:
+        local_date (datetime.date): Local timezone date object.
+
+    Returns:
+        datetime_utc (datetime.datetime): UTC timezone datetime object.
+    """
+    local_datetime = datetime.datetime.combine(
+        local_date, datetime.datetime.min.time(), tz.tzlocal()
+    )
+    datetime_utc = datetime.datetime.astimezone(local_datetime, pytz.utc)
+    return datetime_utc
 
 def get_weekdays_from_weekdays_selector(checkboxes_template_name):
     """
@@ -38,7 +58,7 @@ def get_weekdays_from_weekdays_selector(checkboxes_template_name):
 
             These names have to match the HTML name attributes of the checkboxes.
     Returns:
-        days_selected: String that contains the days selected in the 
+        days_selected (str): String that contains the days selected in the 
             weekdays_selector.
             
             It has the format 'MTWXFSD', each letter represents a weekday.
@@ -51,7 +71,6 @@ def get_weekdays_from_weekdays_selector(checkboxes_template_name):
     }
     for day in days:
         checkbox_name = checkboxes_template_name.replace("$&day&$", day)
-        print(checkbox_name)
         days[day] = request.form.get(checkbox_name)
 
     days_selected = "" #MTWXFSD
@@ -101,7 +120,7 @@ def habits_page():
             weekdays_selected = get_weekdays_from_weekdays_selector(
                 f"weekday-$&day&$-habit-{habit.name}"
             )
-            
+
             habit.goal = goal
             habit.units = units
             habit.days_of_the_week = weekdays_selected
@@ -156,21 +175,61 @@ def habits_page():
             local_datetime_is_today=local_datetime_is_today,
         )
 
-@main.route("/history")
+@main.route("/history", methods=["GET", "POST"])
 def history_page():
-    if request.method == "GET":
-        habits_history = HabitHistory.query.all()
-        achieved_sumations, percentage_achieved_averages = {}, {}
-        for habit_record in habits_history:
-            achieved_sumation = HabitHistory.query.filter_by(
-                name=habit_record.name).with_entities(
-                func.sum(HabitHistory.achieved).label("total")).first().total
-            average_percentage_achieved = \
-                int(habit_record.percentage_achieved / HabitHistory.query.filter_by(
-                name=habit_record.name).count())
-            achieved_sumations[habit_record.name] = achieved_sumation
-            percentage_achieved_averages[habit_record.name] = average_percentage_achieved
+    filter_history_form = FilterHistoryForm()
 
-        return render_template("history.html", habits_history=habits_history, 
-            achieved_sumations=achieved_sumations, 
-            percentage_achieved_averages=percentage_achieved_averages, zip=zip)
+    habits = Habit.query.all()
+    habits_history = HabitHistory.query.all()
+
+    achieved_sumations, percentage_achieved_averages = {}, {}
+    for habit in habits:
+        habit_history_query = HabitHistory.query.filter_by(name=habit.name)
+        habit_history = habit_history_query.all()
+
+        achieved_sumation = habit_history_query.with_entities(
+            func.sum(HabitHistory.achieved).label("total")).first().total
+
+        percentage_achieved_sumation = sum([habit_record.percentage_achieved for habit_record in habit_history])
+        average_percentage_achieved = int(
+            percentage_achieved_sumation / habit_history_query.count()
+        )
+
+        achieved_sumations[habit.name] = achieved_sumation
+        percentage_achieved_averages[habit.name] = average_percentage_achieved
+
+    if request.method == "GET":
+        # no filters
+        filtered_habits_history = habits_history
+
+    if request.method == "POST":
+        start_date = filter_history_form.start_date.data
+        filtered_habits_history_query = db.session.query(HabitHistory)
+        if start_date:
+            start_date_utc = convert_local_date_into_utc_datetime(start_date)
+            filtered_habits_history_query = \
+                filtered_habits_history_query.filter(
+                    HabitHistory.date >= start_date_utc
+                )
+
+        end_date = filter_history_form.end_date.data
+        if end_date:
+            end_date_utc = convert_local_date_into_utc_datetime(end_date)
+            # end of the day
+            end_date_utc = end_date_utc + datetime.timedelta(hours=23, 
+                minutes=59, seconds=59, milliseconds=999, microseconds=999
+            )
+            filtered_habits_history_query = \
+                filtered_habits_history_query.filter(
+                    HabitHistory.date <= end_date_utc
+                )
+        if start_date and end_date:
+            if start_date > end_date:
+                print("Start date can't be greater than end date.")
+                return redirect(url_for("main.history_page"))
+        filtered_habits_history = filtered_habits_history_query.all()
+
+    return render_template("history.html", habits=habits, filter_history_form=filter_history_form,
+        filtered_habits_history=filtered_habits_history, achieved_sumations=achieved_sumations, 
+        percentage_achieved_averages=percentage_achieved_averages, 
+        zip=zip,)

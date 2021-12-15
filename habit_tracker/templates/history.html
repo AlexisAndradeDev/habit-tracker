@@ -7,6 +7,36 @@
 {% block content %}
     <div class="container" style="margin-top: 1rem;">
         <div class="row flex-fill">
+            <!-- Filter table -->
+            <div class="col-6">
+                <div class="card shadow-sm text-center bg-dark">
+                    <div class="card-body">
+                        <div class="card-text">
+                            <div class="col-12">
+                                <h5 style="color: #f2f2f2;">Filter history</h5>
+                                <form method="POST">
+                                    {{ filter_history_form.hidden_tag() }}
+                                    {{ filter_history_form.start_date.label(style="color: #f2f2f2; margin-top: 1rem;") }}
+                                    {{ filter_history_form.start_date() }}
+                                    {{ filter_history_form.end_date.label(style="color: #f2f2f2; margin-top: 1rem;") }}
+                                    {{ filter_history_form.end_date() }}
+                                    {{ filter_history_form.submit(class="btn btn-outline-success", style="margin-top: 1rem;") }}
+                                </form>
+                            </div>
+                            <!-- <div class="col-12">
+                                <label for="start-date" style="color: #f2f2f2;">Start date:</label>
+                                <input type="date" name="start-date" id="start-date" />
+                            </div>
+                            <div class="col-12">
+                                <label for="end-date" style="color: #f2f2f2; margin-top: 1rem;">End date:</label>
+                                <input type="date" name="end-date" id="end-date" />
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row flex-fill" style="margin-top: 2rem;">
             <!-- History table -->
             <table class="table table-hover table-dark text-center">
                 <thead>
@@ -20,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for habit_record in habits_history %}
+                    {% for habit_record in filtered_habits_history %}
                         <tr>
                             <td>{{ habit_record.name }}</td>
                             <td>{{ habit_record.local_timezone_day }}</td>
@@ -43,15 +73,15 @@
                 </tbody>
             </table>
         </div>
-        <div class="row flex-fill" style="margin-top: 2rem;">
+        <div class="row flex-fill" style="margin-top: 2rem; margin-bottom: 2rem;">
             <!-- Total achieved quantity of each habit -->
-            {% for habit_record, achieved_sumation, average_percentage_achieved in zip(habits_history, achieved_sumations.items(), percentage_achieved_averages.items()) %}
+            {% for habit, achieved_sumation, average_percentage_achieved in zip(habits, achieved_sumations.items(), percentage_achieved_averages.items()) %}
             <div class="col-6">
                 <div class="card shadow-sm text-center bg-dark">
                     <div class="card-body">
                         <div class="card-text">
-                            <p style="color: #f2f2f2; font-weight: bold;">{{ habit_record.name }}</p>
-                            <p style="color: #f2f2f2;">Total achieved: {{ achieved_sumation[1] }} {{ habit_record.units }}</p>
+                            <p style="color: #f2f2f2; font-weight: bold;">{{ habit.name }}</p>
+                            <p style="color: #f2f2f2;">Total achieved: {{ achieved_sumation[1] }} {{ habit.units }}</p>
                             <p style="color: #f2f2f2;">Average percentage achieved: {{ average_percentage_achieved[1] }}%</p>
                         </div>
                     </div>
