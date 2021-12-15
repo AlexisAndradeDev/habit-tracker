@@ -2,13 +2,13 @@ from datetime import date
 import datetime
 import pytz
 from dateutil import tz
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, request, redirect, url_for, flash
 from flask.templating import render_template
 from habit_tracker.forms import (CreateHabitForm, ModifyAchievedForm, 
     ModifyForm, DeleteHabitForm, FilterHistoryForm)
 from habit_tracker.models import Habit, HabitHistory
 from habit_tracker import db
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 main = Blueprint("main", __name__)
 
@@ -225,9 +225,11 @@ def history_page():
                 )
         if start_date and end_date:
             if start_date > end_date:
-                print("Start date can't be greater than end date.")
+                flash("Start date can't be greater than end date.", category="danger")
                 return redirect(url_for("main.history_page"))
+
         filtered_habits_history = filtered_habits_history_query.all()
+
 
     return render_template("history.html", habits=habits, filter_history_form=filter_history_form,
         filtered_habits_history=filtered_habits_history, achieved_sumations=achieved_sumations, 
